@@ -24,6 +24,39 @@ RUN pip install --no-cache-dir chromadb
 # Create directories for data persistence
 RUN mkdir -p /app/data && chown -R chroma:chroma /app
 
+# Create a simple server script
+COPY <<EOF /app/server.py
+import chromadb
+from chromadb.config import Settings
+import uvicorn
+import os
+
+def main():
+    # Configure ChromaDB settings
+    settings = Settings(
+        chroma_db_impl="chromadb.db.impl.sqlite.SqliteDB",
+        chroma_api_impl="chromadb.api.fastapi.FastAPI",
+        chroma_server_host="0.0.0.0",
+        chroma_server_http_port=8000,
+        anonymized_telemetry=False,
+        persist_directory="/app/data"
+    )
+    
+    # Start the server
+    uvicorn.run(
+        "chromadb.app:app",
+        host="0.0.0.0",
+        port=8000,
+        log_level="info",
+        timeout_keep_alive=600,   
+        timeout_notify=600,       
+        limit_concurrency=60      
+    )
+
+if __name__ == "__main__":
+    main()
+EOF
+
 # Switch to non-root user
 USER chroma
 
