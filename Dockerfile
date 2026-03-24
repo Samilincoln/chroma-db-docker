@@ -68,4 +68,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:8000/api/v1/heartbeat')" || exit 1
 
 # Start ChromaDB server
-CMD ["python", "-m", "chromadb.cli.cli", "run", "--host", "0.0.0.0", "--port", "8000", "--path", "/app/data"]
+# CMD ["python", "-m", "chromadb.cli.cli", "run", "--host", "0.0.0.0", "--port", "8000", "--path", "/app/data"]
+CMD ["uvicorn", "chromadb.app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
